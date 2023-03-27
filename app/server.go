@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
@@ -18,9 +21,24 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
-	_, err = l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	defer l.Close()
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			log.Fatalln("Error accepting connection: ", err.Error())
+
+		}
+		go func(conn net.Conn) {
+			defer conn.Close()
+
+			buf := bufio.NewWriter(conn)
+			if _, err = buf.WriteString("+PONG\r\n"); err != nil {
+				log.Fatalln("Error write to buf ", err.Error())
+			}
+
+			if err := buf.Flush(); err != nil {
+				log.Fatalln("Error reply: ", err.Error())
+			}
+		}(conn)
 	}
 }
