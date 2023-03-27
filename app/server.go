@@ -35,7 +35,7 @@ func main() {
 				if s.Err() != nil {
 					log.Fatalln("Error scan: ", s.Err())
 				}
-				fmt.Println(s.Text(), s.Text() == "*1\r\n$4\r\nping\r\n")
+
 				if s.Text() == "ping" {
 					buf := bufio.NewWriter(conn)
 					if _, err = buf.WriteString("+PONG\r\n"); err != nil {
@@ -45,9 +45,6 @@ func main() {
 					if err := buf.Flush(); err != nil {
 						log.Fatalln("Error reply: ", err.Error())
 					}
-				}
-				if s.Text() == "" {
-					break
 				}
 			}
 		}(conn)
